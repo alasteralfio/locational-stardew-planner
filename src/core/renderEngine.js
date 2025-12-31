@@ -2,6 +2,7 @@ import { TILE_SIZE } from "./constants.js";
 import { loadLocations, setCurrentLocation, getCurrentLocation } from './locationManager.js';
 import { loadSprite, fetchObjectDefinition } from './assetLoader.js';
 import { ySortPlacements, gridToPixel } from './renderHelpers.js';
+import { initInteractions } from './interactionHandler.js';
 
 // Canvas state - keep these private to this module
 const canvases = {};
@@ -46,6 +47,10 @@ function initCanvases() {
             preserveObjectStacking: true,
             hoverCursor: "grab",
             backgroundColor: "transparent",
+            isDrawingMode: false,      // Ensure this is false
+            stopContextMenu: true,     // Already set via oncontextmenu
+            fireRightClick: false,     // Don't fire right click
+            fireMiddleClick: false
         });
         fabricCanvas.setWidth(location.pixelWidth);
         fabricCanvas.setHeight(location.pixelHeight);
@@ -182,6 +187,20 @@ async function init() {
         await loadLocations();
         setCurrentLocation('farm');
         initCanvases();
+
+        // Initialize drag-and-drop interactions for PATHS layer
+        if (canvases.paths) {
+            initInteractions(canvases.paths, window.appState);
+        } else {
+            console.error('DEBUG: canvases.paths is undefined!');
+        }
+
+        // Listen for placement updates to trigger re-render
+        window.addEventListener('placementsUpdated', async () => {
+            console.log('Re-rendering due to placement update...');
+            await drawAllObjects();
+        });
+
         await drawBackground();
         drawGrid();
         await drawAllObjects();

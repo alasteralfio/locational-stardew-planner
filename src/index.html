@@ -3,10 +3,35 @@
 <head>
     <title>Stardew Valley Planner</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
-    <style>
-        canvas { position: absolute; top: 0; left: 0; }
-        #layer-3 { cursor: grab; }
-    </style>
+<style>
+    /* Base canvas positioning */
+    canvas { 
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+    }
+    
+    /* SPECIFIC Z-INDEX STACKING ORDER */
+    #layer-0 { z-index: 1; } /* Terrain - bottom */
+    #layer-1 { z-index: 2; } /* Walls/Floors */
+    #layer-2 { 
+        z-index: 3; 
+        cursor: grab; /* Make it clear this layer is interactive */
+    } /* Paths - INTERACTIVE LAYER */
+    
+    /* Fabric.js canvases - must be UNDER layer-2 for events */
+    #layer-3, 
+    #layer-3 .lower-canvas,
+    #layer-3 .upper-canvas {
+        z-index: 1; /* BELOW layer-2 */
+        pointer-events: none; /* Ensure no event interception */
+    }
+    
+    #layer-4 { 
+        z-index: 4; 
+        pointer-events: none; /* Grid overlay - visible but non-interactive */
+    } /* Overlay - top */
+</style>
 </head>
 <body>
     <canvas id="layer-0"></canvas>
@@ -21,6 +46,7 @@
     <script src="core/locationManager.js" type="module"></script>
     <script src="core/assetLoader.js" type="module"></script>
     <script src="core/renderHelpers.js" type="module"></script>
+    <script src="core/interactionHandler.js" type="module"></script>
     <script src="core/renderEngine.js" type="module"></script>
 
     <script>
