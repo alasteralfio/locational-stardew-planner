@@ -113,9 +113,13 @@ async function drawSingleObject(placement) {
     if (!location) return;
 
     const objectDef = await fetchObjectDefinition(placement.objectKey);
-    if (!objectDef) return;
+    if (!objectDef) {
+        console.error(`Object definition not found: ${placement.objectKey}`);
+        return;
+    }
 
     const spriteImg = await loadSprite(objectDef.sprite);
+
     const { pixelX, pixelY } = gridToPixel(placement.gridX, placement.gridY);
 
     if (placement.layer === 2 && ctx.paths) {
@@ -151,6 +155,7 @@ async function drawSingleObject(placement) {
 }
 
 // Draw all objects
+// Draw all objects - FIXED to handle empty states properly
 async function drawAllObjects() {
     const location = getCurrentLocation();
     if (!location) return;
@@ -160,14 +165,15 @@ async function drawAllObjects() {
         loc => loc.locationKey === window.appState.currentView.locationKey
     );
     
-    if (!currentLocationData || !currentLocationData.directPlacements.length) {
-        console.log("No placements to draw");
-        return;
-    }
-
-    // Clear previous drawings
+    // Clear previous drawings regardless of whether there are placements
     if (ctx.paths) ctx.paths.clearRect(0, 0, location.pixelWidth, location.pixelHeight);
     if (fabricCanvas) fabricCanvas.clear();
+
+    // If no current location data or no placements, we're done (canvas is cleared)
+    if (!currentLocationData || !currentLocationData.directPlacements.length) {
+        console.log("No placements to draw - canvas cleared");
+        return;
+    }
 
     // Draw each placement
     const sorted = ySortPlacements(currentLocationData.directPlacements);
@@ -178,7 +184,39 @@ async function drawAllObjects() {
             console.error(`Failed to draw ${placement.objectKey}:`, error);
         }
     }
+
+    console.log("drawAllObjects - STATE AFTER DRAWING:", JSON.parse(JSON.stringify(currentLocationData?.directPlacements || [])));
 }
+
+function setupCanvasRestore() {
+    // Listen for window focus/visibility changes
+    window.addEventListener('focus', async () => {
+        console.log('Window focused - restoring canvas');
+        await drawBackground();
+        drawGrid();
+        await drawAllObjects();
+    });
+    
+    window.addEventListener('visibilitychange', async () => {
+        if (document.visibilityState === 'visible') {
+            console.log('Tab visible - restoring canvas');
+            await drawBackground();
+            drawGrid();
+            await drawAllObjects();
+        }
+    });
+    
+    // Also restore on window resize (which can happen when restoring from minimize)
+    window.addEventListener('resize', async () => {
+        console.log('Window resized - restoring canvas');
+        // You might need to reinitialize canvases if size changed
+        // For now, just redraw
+        await drawBackground();
+        drawGrid();
+        await drawAllObjects();
+    });
+}
+
 
 // Main initialization
 async function init() {
@@ -208,6 +246,7 @@ async function init() {
     } catch (error) {
         console.error("Render engine failed:", error);
     }
+    setupCanvasRestore();
 }
 
 // Expose to window

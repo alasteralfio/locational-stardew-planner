@@ -1,4 +1,3 @@
-// src/core/renderHelpers.js
 import { TILE_SIZE } from "./constants.js";
 
 

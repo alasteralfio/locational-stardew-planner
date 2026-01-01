@@ -31,7 +31,6 @@ export async function loadObjects() {
     try {
         const response = await fetch('data/objects.json');
         objectsData = await response.json();
-        console.log('Objects data loaded:', Object.keys(objectsData).length, 'objects');
         return objectsData;
     } catch (error) {
         console.error('Failed to load objects.json:', error);
