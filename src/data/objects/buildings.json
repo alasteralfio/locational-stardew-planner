@@ -1,0 +1,96 @@
+{
+    "building_farmhouse_0":{
+        "name": "Farmhouse 1",
+        "category": "buildings",
+        "spriteType": "single",
+        "seasonal": false,
+        "sprite": ["assets/objects/buildings/farmhouse_0.png"],
+        "footprintWidth": 9,
+        "footprintHeight": 5,
+        "defaultLayer": 3,
+        "canEnter": true,
+        "entranceTile": { "x": 4, "y": 5 }
+    },
+    "building_farmhouse_1":{
+        "name": "Farmhouse 2",
+        "category": "buildings",
+        "spriteType": "single",
+        "seasonal": false,
+        "sprite": ["assets/objects/buildings/farmhouse_1.png"],
+        "footprintWidth": 9,
+        "footprintHeight": 5,
+        "defaultLayer": 3,
+        "canEnter": true,
+        "entranceTile": { "x": 4, "y": 5 }
+    },
+    "building_farmhouse_2":{
+        "name": "Farmhouse 3",
+        "category": "buildings",
+        "spriteType": "single",
+        "seasonal": false,
+        "sprite": ["assets/objects/buildings/farmhouse_2.png"],
+        "footprintWidth": 9,
+        "footprintHeight": 5,
+        "defaultLayer": 3,
+        "canEnter": true,
+        "entranceTile": { "x": 4, "y": 5 }
+    },
+    "building_shed_0": {
+        "name": "Shed",
+        "category": "buildings",
+        "spriteType": "single",
+        "seasonal": false,
+        "sprite": ["assets/objects/buildings/shed_0.png"],
+        "footprintWidth": 7,
+        "footprintHeight": 3,
+        "defaultLayer": 3,
+        "canEnter": true,
+        "entranceTile": { "x": 3, "y": 3 }
+    },
+    "building_shed_1": {
+        "name": "Big Shed",
+        "category": "buildings",
+        "seasonal": false,
+        "spriteType": "single",
+        "sprite": ["assets/objects/buildings/shed_1.png"],
+        "footprintWidth": 7,
+        "footprintHeight": 3,
+        "defaultLayer": 3,
+        "canEnter": true,
+        "entranceTile": { "x": 3, "y": 3 }
+    },
+    "building_stable_0": {
+        "name": "Stable",
+        "category": "buildings",
+        "seasonal": false,
+        "spriteType": "single",
+        "sprite": ["assets/objects/buildings/stable_0.png"],
+        "footprintWidth": 4,
+        "footprintHeight": 2,
+        "defaultLayer": 3,
+        "canEnter": false
+    },
+    "building_slimehutch_0": {
+        "name": "Slime Hutch",
+        "category": "buildings",
+        "seasonal": false,
+        "spriteType": "single",
+        "sprite": ["assets/objects/buildings/slime_hutch_0.png"],
+        "footprintWidth": 7,
+        "footprintHeight": 4,
+        "defaultLayer": 3,
+        "canEnter": true,
+        "entranceTile": { "x": 3, "y": 4 }
+    },
+    "building_mill_0": {
+        "name": "Mill",
+        "category": "buildings",
+        "seasonal": false,
+        "spriteType": "single",
+        "sprite": ["assets/objects/buildings/mill_0.png"],
+        "footprintWidth": 4,
+        "footprintHeight": 2,
+        "defaultLayer": 3,
+        "canEnter": false
+    }
+}

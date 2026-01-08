@@ -1,0 +1,91 @@
+{
+    "stone_walkway_floor": {
+        "name": "Stone Walkway Floor",
+        "category": "machines",
+        "spriteType": "atlas",
+        "seasonal": true,
+        "sprite": [
+            "assets/objects/machines/path_atlas_0.png",
+            "assets/objects/machines/path_atlas_0.png",
+            "assets/objects/machines/path_atlas_3.png",
+            "assets/objects/machines/path_atlas_3.png"
+        ],
+        "atlasCoord": { "x": 0, "y": 128 },
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "icon": "assets/icons/icon_machine_atlas_0.png",
+        "iconCoord": { "x": 128, "y": 0 },
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 2,
+        "placeableIndoors": true,
+        "canEnter": false
+    },
+    "wooden_floor": {
+        "name": "Wooden Floor",
+        "category": "machines",
+        "spriteType": "atlas",
+        "seasonal": true,
+        "sprite": [
+            "assets/objects/machines/path_atlas_0.png",
+            "assets/objects/machines/path_atlas_0.png",
+            "assets/objects/machines/path_atlas_3.png",
+            "assets/objects/machines/path_atlas_3.png"
+        ],
+        "atlasCoord": { "x": 192, "y": 128 },
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "icon": "assets/icons/icon_machine_atlas_0.png",
+        "iconCoord": { "x": 176, "y": 0 },
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 2,
+        "placeableIndoors": true,
+        "canEnter": false
+    },
+    "bee_house": {
+        "name": "Bee House",
+        "category": "machines",
+        "spriteType": "atlas",
+        "seasonal": false,
+        "sprite": ["assets/objects/machines/machine_atlas_0.png"],
+        "atlasCoord": { "x": 16, "y": 0 },
+        "tileWidth": 16,
+        "tileHeight": 32,
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 3,
+        "placeableIndoors": true,
+        "canEnter": false
+    },
+    "furnace_0": {
+        "name": "Furnace",
+        "category": "machines",
+        "spriteType": "atlas",
+        "seasonal": false,
+        "sprite": ["assets/objects/machines/machine_atlas_0.png"],
+        "atlasCoord": { "x": 32, "y": 32 },
+        "tileWidth": 16,
+        "tileHeight": 32,
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 3,
+        "placeableIndoors": true,
+        "canEnter": false
+    },
+    "chest_0": {
+        "name": "Chest",
+        "category": "machines",
+        "spriteType": "atlas",
+        "seasonal": false,
+        "sprite": ["assets/objects/machines/machine_atlas_0.png"],
+        "atlasCoord": { "x": 0, "y": 96 },
+        "tileWidth": 16,
+        "tileHeight": 32,
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 3,
+        "placeableIndoors": true,
+        "canEnter": false
+    }
+}

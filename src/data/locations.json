@@ -3,11 +3,11 @@
         "name": "Standard Farm",
         "gridWidth": 80,
         "gridHeight": 65,
-        "backgroundSprites": [
-            "assets/locations/farm_0.png",
-            "assets/locations/farm_1.png", 
-            "assets/locations/farm_2.png",
-            "assets/locations/farm_3.png"
+        "sprite": [
+            "assets/locations/location_farm_0.png",
+            "assets/locations/location_farm_1.png", 
+            "assets/locations/location_farm_2.png",
+            "assets/locations/location_farm_3.png"
         ],
         "blockedAreas": [
             {"x": 10, "y": 10, "width": 3, "height": 1},
@@ -20,7 +20,7 @@
         "name": "Shed",
         "gridWidth": 13,
         "gridHeight": 14,
-        "backgroundSprites": [
+        "sprite": [
             "assets/locations/location_shed_0.png"
         ],
         "blockedAreas": [
@@ -30,6 +30,13 @@
             {"x": 0, "y": 13, "width": 13, "height": 1}
         ],
         "canPlaceWalls": true,
+        "wallpaperAreas": [
+            {"x": 1, "y": 1, "width": 11, "height": 3}
+        ],
+        "flooringAreas": [
+            {"x": 1, "y": 4, "width": 11, "height": 9},
+            {"x": 6, "y": 13, "width": 1, "height": 1}
+        ],
         "indoors": true
     }
 }
