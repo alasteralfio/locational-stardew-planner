@@ -1,0 +1,62 @@
+{
+    "oak_chair_front": {
+        "name": "Oak Chair (Front)",
+        "category": "decor",
+        "spriteType": "atlas",
+        "seasonal": false,
+        "sprite": ["assets/objects/decor/chair_atlas_0.png"],
+        "atlasCoord": { "x": 0, "y": 0 },
+        "tileWidth": 16,
+        "tileHeight": 32,
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 3,
+        "placeableIndoors": true,
+        "canEnter": false
+    },
+        "oak_chair_right": {
+        "name": "Oak Chair (Right)",
+        "category": "decor",
+        "spriteType": "atlas",
+        "seasonal": false,
+        "sprite": ["assets/objects/decor/chair_atlas_0.png"],
+        "atlasCoord": { "x": 16, "y": 0 },
+        "tileWidth": 16,
+        "tileHeight": 32,
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 3,
+        "placeableIndoors": true,
+        "canEnter": false
+    },
+    "oak_chair_back": {
+        "name": "Oak Chair (Back)",
+        "category": "decor",
+        "spriteType": "atlas",
+        "seasonal": false,
+        "sprite": ["assets/objects/decor/chair_atlas_0.png"],
+        "atlasCoord": { "x": 32, "y": 0 },
+        "tileWidth": 16,
+        "tileHeight": 32,
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 3,
+        "placeableIndoors": true,
+        "canEnter": false
+    },
+    "oak_chair_left": {
+        "name": "Oak Chair (Left)",
+        "category": "decor",
+        "spriteType": "atlas",
+        "seasonal": false,
+        "sprite": ["assets/objects/decor/chair_atlas_0.png"],
+        "atlasCoord": { "x": 48, "y": 0 },
+        "tileWidth": 16,
+        "tileHeight": 32,
+        "footprintWidth": 1,
+        "footprintHeight": 1,
+        "defaultLayer": 3,
+        "placeableIndoors": true,
+        "canEnter": false
+    }
+}

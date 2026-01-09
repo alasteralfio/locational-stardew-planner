@@ -4,5 +4,6 @@ export const LAYERS = {
     WALLS: 1,
     PATHS: 2,
     OBJECTS: 3,
-    OVERLAY: 4,
+    FRONT: 4,
+    OVERLAY: 5,
 };

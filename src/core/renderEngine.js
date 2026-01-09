@@ -14,8 +14,8 @@ function initCanvases() {
     const location = getCurrentLocation();
     if (!location) throw new Error("No location set");
     
-    const layerIds = ["layer-0", "layer-1", "layer-2", "layer-3", "layer-4"];
-    const layerNames = ["terrain", "walls", "paths", "objects", "overlay"];
+    const layerIds = ["layer-0", "layer-1", "layer-2", "layer-3", "layer-4", "layer-5"];
+    const layerNames = ["terrain", "walls", "paths", "objects", "front", "overlay"];
 
     for (let i = 0; i < layerIds.length; i++) {
         const canvas = document.getElementById(layerIds[i]);
@@ -108,6 +108,7 @@ function drawGrid() {
 }
 
 // Draw a single object
+// Draw a single object
 async function drawSingleObject(placement) {
     const location = getCurrentLocation();
     if (!location) return;
@@ -151,11 +152,23 @@ async function drawSingleObject(placement) {
             data: { id: placement.id, objectKey: placement.objectKey }
         });
         fabricCanvas.add(fabricObj);
+    } else if (placement.layer === 4 && ctx.front) {
+        if (objectDef.spriteType === 'atlas') {
+            ctx.front.drawImage(
+                spriteImg,
+                objectDef.atlasCoord.x, objectDef.atlasCoord.y,
+                TILE_SIZE, TILE_SIZE,
+                pixelX, pixelY,
+                TILE_SIZE * objectDef.footprintWidth,
+                TILE_SIZE * objectDef.footprintHeight
+            );
+        } else {
+            ctx.front.drawImage(spriteImg, pixelX, pixelY);
+        }
     }
 }
 
 // Draw all objects
-// Draw all objects - FIXED to handle empty states properly
 async function drawAllObjects() {
     const location = getCurrentLocation();
     if (!location) return;
@@ -168,6 +181,7 @@ async function drawAllObjects() {
     // Clear previous drawings regardless of whether there are placements
     if (ctx.paths) ctx.paths.clearRect(0, 0, location.pixelWidth, location.pixelHeight);
     if (fabricCanvas) fabricCanvas.clear();
+    if (ctx.front) ctx.front.clearRect(0, 0, location.pixelWidth, location.pixelHeight); 
 
     // If no current location data or no placements, we're done (canvas is cleared)
     if (!currentLocationData || !currentLocationData.directPlacements.length) {
