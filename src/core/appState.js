@@ -110,5 +110,5 @@ appState.createNewLayout = function() {
     }, 0);
 };
 
-// Make appState globally accessible
-window.appState = appState;
+// Export for modules (remove the window assignment)
+export { appState };

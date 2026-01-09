@@ -3,6 +3,7 @@ import { loadLocations, setCurrentLocation, getCurrentLocation } from './locatio
 import { loadSprite, fetchObjectDefinition } from './assetLoader.js';
 import { ySortPlacements, gridToPixel } from './renderHelpers.js';
 import { initInteractions } from './interactionHandler.js';
+import { PaletteController } from '../ui/paletteController.js';
 
 // Canvas state - keep these private to this module
 const canvases = {};
@@ -70,7 +71,7 @@ async function drawBackground() {
     terrainCtx.clearRect(0, 0, location.pixelWidth, location.pixelHeight);
     
     const bgImage = new Image();
-    bgImage.src = location.backgroundSprites[0]; // Spring season
+    bgImage.src = location.sprite[0]; // Spring season
     
     await new Promise((resolve) => {
         bgImage.onload = () => {
@@ -256,12 +257,20 @@ async function init() {
         await drawBackground();
         drawGrid();
         await drawAllObjects();
+        
+        // Initialize palette controller after everything else is ready
+        const paletteController = new PaletteController(window.appState);
+        
         console.log("Render engine ready!");
     } catch (error) {
         console.error("Render engine failed:", error);
     }
     setupCanvasRestore();
+    
+    // Return a promise to indicate completion
+    return Promise.resolve();
 }
 
 // Expose to window
 window.renderEngine = { init };
+export { init };

@@ -28,14 +28,34 @@ let objectsData = null;
 export async function loadObjects() {
     if (objectsData) return objectsData;
     
-    try {
-        const response = await fetch('data/objects.json');
-        objectsData = await response.json();
-        return objectsData;
-    } catch (error) {
-        console.error('Failed to load objects.json:', error);
-        throw error;
+    // Load all object category files
+    const [buildings, crops, decor, machines, wallpaper] = await Promise.all([
+        fetch('./data/objects/buildings.json').then(r => r.json()).catch(() => ({})),
+        fetch('./data/objects/crops.json').then(r => r.json()).catch(() => ({})),
+        fetch('./data/objects/decor.json').then(r => r.json()).catch(() => ({})),
+        fetch('./data/objects/machines.json').then(r => r.json()).catch(() => ({})),
+        fetch('./data/objects/wallpaper.json').then(r => r.json()).catch(() => ({}))
+    ]);
+    
+    // Merge into single object for easy lookup
+    objectsData = {
+        ...buildings,
+        ...crops,
+        ...decor,
+        ...machines,
+        ...wallpaper
+    };
+    
+    // Normalize sprite property - convert arrays to single strings (use first sprite for now)
+    for (const [key, obj] of Object.entries(objectsData)) {
+        if (Array.isArray(obj.sprite)) {
+            // For now, use the first sprite (spring/normal)
+            objectsData[key].sprite = obj.sprite[0];
+        }
     }
+    
+    console.log('Objects data loaded:', Object.keys(objectsData).length, 'objects');
+    return objectsData;
 }
 
 //Gets object definition by key
