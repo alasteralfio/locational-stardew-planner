@@ -229,3 +229,42 @@ export function initInteractions(pathsCanvas, appState) {
 
     console.log('Interaction handlers initialized for PATHS layer.');
 }
+
+export function initViewportPanning(viewportElement) {
+    let isPanning = false;
+    let lastX = 0;
+    let lastY = 0;
+    
+    viewportElement.addEventListener('mousedown', (e) => {
+        if (e.button === 1) { // Middle mouse button
+            isPanning = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            viewportElement.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isPanning) return;
+        
+        const deltaX = e.clientX - lastX;
+        const deltaY = e.clientY - lastY;
+        
+        viewportElement.scrollLeft -= deltaX;
+        viewportElement.scrollTop -= deltaY;
+        
+        lastX = e.clientX;
+        lastY = e.clientY;
+    });
+    
+    document.addEventListener('mouseup', (e) => {
+        isPanning = false;
+        viewportElement.style.cursor = 'grab';
+    });
+    
+    document.addEventListener('mouseleave', () => {
+        isPanning = false;
+        viewportElement.style.cursor = 'grab';
+    });
+}

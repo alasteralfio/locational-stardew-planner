@@ -3,6 +3,7 @@ import { loadLocations, setCurrentLocation, getCurrentLocation } from './locatio
 import { loadSprite, fetchObjectDefinition } from './assetLoader.js';
 import { ySortPlacements, gridToPixel } from './renderHelpers.js';
 import { initInteractions } from './interactionHandler.js';
+import { initViewportPanning } from './interactionHandler.js';
 import { PaletteController } from '../ui/paletteController.js';
 
 // Canvas state - keep these private to this module
@@ -12,8 +13,11 @@ let fabricCanvas = null;
 
 //Initialize all canvas layers
 function initCanvases() {
+    const viewport = document.querySelector('.game-viewport');
     const location = getCurrentLocation();
-    if (!location) throw new Error("No location set");
+    if (!location || !viewport) throw new Error("No location or viewport set");
+    
+    // pixelWidth and pixelHeight are already set in locationManager.js
     
     const layerIds = ["layer-0", "layer-1", "layer-2", "layer-3", "layer-4", "layer-5"];
     const layerNames = ["terrain", "walls", "paths", "objects", "front", "overlay"];
@@ -28,6 +32,8 @@ function initCanvases() {
         canvases[layerNames[i]] = canvas;
         canvas.width = location.pixelWidth;
         canvas.height = location.pixelHeight;
+        canvas.style.width = location.pixelWidth + 'px';
+        canvas.style.height = location.pixelHeight + 'px';
 
         if (layerIds[i] !== "layer-3") {
             const context = canvas.getContext("2d");
@@ -55,6 +61,8 @@ function initCanvases() {
         });
         fabricCanvas.setWidth(location.pixelWidth);
         fabricCanvas.setHeight(location.pixelHeight);
+        objectsCanvas.style.width = location.pixelWidth + 'px';
+        objectsCanvas.style.height = location.pixelHeight + 'px';
         fabricCanvas.upperCanvasEl.oncontextmenu = (e) => e.preventDefault();
         console.log("Fabric.js initialized");
     }
@@ -240,6 +248,12 @@ async function init() {
         await loadLocations();
         setCurrentLocation('farm');
         initCanvases();
+
+        // Initialize viewport panning
+        const viewport = document.querySelector('.game-viewport');
+        if (viewport) {
+            initViewportPanning(viewport);
+        }
 
         // Initialize drag-and-drop interactions for PATHS layer
         if (canvases.paths) {
