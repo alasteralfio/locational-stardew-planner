@@ -96,25 +96,7 @@ async function drawBackground() {
 
 //Draw grid overlay
 function drawGrid() {
-    const location = getCurrentLocation();
-    const gridCtx = ctx.overlay;
-    if (!gridCtx || !location) return;
-
-    gridCtx.clearRect(0, 0, location.pixelWidth, location.pixelHeight);
-    gridCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-    gridCtx.lineWidth = 1;
-    gridCtx.beginPath();
-
-    for (let x = 0; x <= location.pixelWidth; x += TILE_SIZE) {
-        gridCtx.moveTo(x + 0.5, 0);
-        gridCtx.lineTo(x + 0.5, location.pixelHeight);
-    }
-    for (let y = 0; y <= location.pixelHeight; y += TILE_SIZE) {
-        gridCtx.moveTo(0, y + 0.5);
-        gridCtx.lineTo(location.pixelWidth, y + 0.5);
-    }
-
-    gridCtx.stroke();
+    updateOverlay();
 }
 
 // Draw a single object
@@ -129,12 +111,14 @@ async function drawSingleObject(placement) {
         return;
     }
 
+    console.log(`Drawing ${placement.objectKey} on layer ${placement.layer} at [${placement.gridX}, ${placement.gridY}]`);
+
     const spriteImg = await loadSprite(objectDef.sprite);
 
     const { pixelX, pixelY } = gridToPixel(placement.gridX, placement.gridY);
 
     if (placement.layer === 2 && ctx.paths) {
-        // Draw path on native canvas
+        console.log(`Drawing path on layer 2`);
         if (objectDef.spriteType === 'atlas') {
             ctx.paths.drawImage(
                 spriteImg,
@@ -148,7 +132,7 @@ async function drawSingleObject(placement) {
             ctx.paths.drawImage(spriteImg, pixelX, pixelY);
         }
     } else if (placement.layer === 3 && fabricCanvas) {
-        // Draw object on Fabric.js canvas
+        console.log(`Drawing on layer 3 (Fabric) - creating rect at [${pixelX}, ${pixelY}] size ${TILE_SIZE * objectDef.footprintWidth}x${TILE_SIZE * objectDef.footprintHeight}`);
         const fabricObj = new fabric.Rect({
             left: pixelX,
             top: pixelY,
@@ -162,7 +146,10 @@ async function drawSingleObject(placement) {
             data: { id: placement.id, objectKey: placement.objectKey }
         });
         fabricCanvas.add(fabricObj);
+        fabricCanvas.renderAll();
+        console.log(`Added to Fabric canvas, total objects: ${fabricCanvas.getObjects().length}`);
     } else if (placement.layer === 4 && ctx.front) {
+        console.log(`Drawing on layer 4`);
         if (objectDef.spriteType === 'atlas') {
             ctx.front.drawImage(
                 spriteImg,
@@ -175,6 +162,8 @@ async function drawSingleObject(placement) {
         } else {
             ctx.front.drawImage(spriteImg, pixelX, pixelY);
         }
+    } else {
+        console.warn(`No context for layer ${placement.layer}`, {layer: placement.layer, fabricCanvas: !!fabricCanvas, ctxFront: !!ctx.front, ctxPaths: !!ctx.paths});
     }
 }
 
@@ -241,6 +230,97 @@ function setupCanvasRestore() {
     });
 }
 
+function drawPreviewHighlights(appState) {
+    const overlayCtx = ctx.overlay;
+    if (!overlayCtx || !appState.isPreviewActive()) return;
+
+    const { objectKey, gridX, gridY, isValid, footprintWidth, footprintHeight } = appState.previewState;
+    const color = isValid ? 'rgba(0, 255, 0, 0.3)' : 'rgba(255, 0, 0, 0.3)';
+
+    overlayCtx.fillStyle = color;
+    for (let x = 0; x < footprintWidth; x++) {
+        for (let y = 0; y < footprintHeight; y++) {
+            const pixelX = (gridX + x) * TILE_SIZE;
+            const pixelY = (gridY + y) * TILE_SIZE;
+            overlayCtx.fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+}
+
+function updateOverlay() {
+    const location = getCurrentLocation();
+    const overlayCtx = ctx.overlay;
+    if (!overlayCtx || !location) return;
+
+    overlayCtx.clearRect(0, 0, location.pixelWidth, location.pixelHeight);
+    
+    overlayCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    overlayCtx.lineWidth = 1;
+    overlayCtx.beginPath();
+
+    for (let x = 0; x <= location.pixelWidth; x += TILE_SIZE) {
+        overlayCtx.moveTo(x + 0.5, 0);
+        overlayCtx.lineTo(x + 0.5, location.pixelHeight);
+    }
+    for (let y = 0; y <= location.pixelHeight; y += TILE_SIZE) {
+        overlayCtx.moveTo(0, y + 0.5);
+        overlayCtx.lineTo(location.pixelWidth, y + 0.5);
+    }
+
+    overlayCtx.stroke();
+    drawPreviewHighlights(window.appState);
+    
+    // Draw drag ghost with full footprint
+    if (window.dragState && window.dragState.isActive && window.currentDragPlacement) {
+        const isValid = window.dragState.isValid !== false;
+        const fillColor = isValid ? 'rgba(0, 255, 0, 0.3)' : 'rgba(255, 0, 0, 0.3)';
+        const strokeColor = isValid ? 'rgba(0, 255, 0, 0.8)' : 'rgba(255, 0, 0, 0.8)';
+        
+        const fw = window.currentDragPlacement.footprintWidth || 1;
+        const fh = window.currentDragPlacement.footprintHeight || 1;
+        
+        for (let x = 0; x < fw; x++) {
+            for (let y = 0; y < fh; y++) {
+                const tileX = window.dragState.gridX + x;
+                const tileY = window.dragState.gridY + y;
+                const ghostPixelX = tileX * TILE_SIZE;
+                const ghostPixelY = tileY * TILE_SIZE;
+                
+                overlayCtx.fillStyle = fillColor;
+                overlayCtx.strokeStyle = strokeColor;
+                overlayCtx.lineWidth = 2;
+                
+                overlayCtx.fillRect(ghostPixelX, ghostPixelY, TILE_SIZE, TILE_SIZE);
+                overlayCtx.strokeRect(ghostPixelX, ghostPixelY, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    }
+    
+    requestAnimationFrame(updateOverlay);
+}
+
+
+// Render queue to prevent concurrent draw operations
+let isDrawing = false;
+let pendingDraw = false;
+
+async function queuedDrawAllObjects() {
+    if (isDrawing) {
+        // Mark that another draw is needed after current one completes
+        pendingDraw = true;
+        return;
+    }
+    
+    isDrawing = true;
+    await drawAllObjects();
+    isDrawing = false;
+    
+    // If another draw was requested while we were drawing, do it now
+    if (pendingDraw) {
+        pendingDraw = false;
+        await queuedDrawAllObjects();
+    }
+}
 
 // Main initialization
 async function init() {
@@ -266,12 +346,12 @@ async function init() {
         // Listen for placement updates to trigger re-render
         window.addEventListener('placementsUpdated', async () => {
             console.log('Re-rendering due to placement update...');
-            await drawAllObjects();
+            await queuedDrawAllObjects();
         });
 
         await drawBackground();
         drawGrid();
-        await drawAllObjects();
+        await queuedDrawAllObjects();
         
         // Initialize palette controller after everything else is ready
         window.paletteController = new PaletteController(window.appState);
@@ -292,3 +372,4 @@ async function init() {
 // Expose to window
 window.renderEngine = { init };
 export { init };
+export { ctx, canvases };

@@ -8,6 +8,17 @@ const appState = {
     // User is holding
     selectedItem: null, // Format: { objectKey: 'path_stone_walkway_floor', layer: 2 }
 
+    // Preview state for placement preview system
+    previewState: {
+        isActive: false,
+        objectKey: null, 
+        gridX: 0,
+        gridY: 0,
+        isValid: true,
+        footprintWidth: 1,
+        footprintHeight: 1,
+    },
+
     // All user placements structured for saving
     modifiedLocations: [
         {
@@ -44,6 +55,43 @@ const appState = {
 let placementIdCounter = 3;
 appState.generatePlacementId = function () {
     return `plc_${Date.now()}_${placementIdCounter++}`;
+};
+
+// Update preview position and validity
+appState.updatePreview = function(gridX, gridY, isValid) {
+    this.previewState.gridX = gridX;
+    this.previewState.gridY = gridY;
+    this.previewState.isValid = isValid;
+};
+
+// Activate preview with object definition
+appState.activatePreview = function(objectKey, footprintWidth, footprintHeight) {
+    this.previewState.isActive = true;
+    this.previewState.objectKey = objectKey;
+    this.previewState.footprintWidth = footprintWidth;
+    this.previewState.footprintHeight = footprintHeight;
+    this.previewState.gridX = 0;
+    this.previewState.gridY = 0;
+    this.previewState.isValid = true;
+};
+
+// Deactivate preview
+appState.deactivatePreview = function() {
+    this.previewState.isActive = false;
+    this.previewState.objectKey = null;
+};
+
+// Check if preview is currently active
+appState.isPreviewActive = function() {
+    return this.previewState.isActive && this.previewState.objectKey !== null;
+};
+
+// Deselect current item and clear preview
+appState.deselect = function() {
+    this.selectedItem = null;
+    this.deactivatePreview();
+    const canvas = document.getElementById('paths-canvas');
+    if (canvas) canvas.style.cursor = 'default';
 };
 
 // Save current layout to JSON file

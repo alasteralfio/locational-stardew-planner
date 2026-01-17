@@ -75,7 +75,7 @@
         "category": "buildings",
         "seasonal": false,
         "spriteType": "single",
-        "sprite": ["assets/objects/buildings/slime_hutch_0.png"],
+        "sprite": ["assets/objects/buildings/slimehutch_0.png"],
         "footprintWidth": 7,
         "footprintHeight": 4,
         "defaultLayer": 3,

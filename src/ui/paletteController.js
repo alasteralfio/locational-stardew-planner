@@ -208,6 +208,12 @@ class PaletteController {
             objectKey: obj.objectKey,
             layer: obj.defaultLayer
         };
+
+        this.appState.activatePreview(
+            obj.objectKey,
+            obj.footprintWidth || 1,
+            obj.footprintHeight || 1
+        );
         
         // Update status bar
         const statusBar = document.getElementById('selected-object');

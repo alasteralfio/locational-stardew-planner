@@ -5,10 +5,10 @@
         "spriteType": "atlas",
         "seasonal": true,
         "sprite": [
-            "assets/objects/trees/tree_atlas_0.png",
-            "assets/objects/trees/tree_atlas_1.png",
-            "assets/objects/trees/tree_atlas_2.png",
-            "assets/objects/trees/tree_atlas_3.png"
+            "assets/objects/crops/tree_atlas_0.png",
+            "assets/objects/crops/tree_atlas_1.png",
+            "assets/objects/crops/tree_atlas_2.png",
+            "assets/objects/crops/tree_atlas_3.png"
         ],
         "atlasCoord": { "x": 0, "y": 0 },
         "tileWidth": 48,
