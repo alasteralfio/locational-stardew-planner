@@ -4,10 +4,10 @@
         "gridWidth": 80,
         "gridHeight": 65,
         "sprite": [
-            "assets/locations/loc_farm_0.png",
-            "assets/locations/loc_farm_1.png", 
-            "assets/locations/loc_farm_2.png",
-            "assets/locations/loc_farm_3.png"
+            "assets/locations/lfarm_1.png", 
+            "assets/locations/lfarm_2.png",
+            "assets/locations/lfarm_3.png",
+            "assets/locations/lfarm_0.png"
         ],
         "blockedAreas": [
             {"x": 10, "y": 10, "width": 3, "height": 1},
