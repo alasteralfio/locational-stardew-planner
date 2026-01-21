@@ -4,10 +4,10 @@
         "gridWidth": 80,
         "gridHeight": 65,
         "sprite": [
-            "assets/locations/location_farm_0.png",
-            "assets/locations/location_farm_1.png", 
-            "assets/locations/location_farm_2.png",
-            "assets/locations/location_farm_3.png"
+            "assets/locations/loc_farm_0.png",
+            "assets/locations/loc_farm_1.png", 
+            "assets/locations/loc_farm_2.png",
+            "assets/locations/loc_farm_3.png"
         ],
         "blockedAreas": [
             {"x": 10, "y": 10, "width": 3, "height": 1},
@@ -21,7 +21,7 @@
         "gridWidth": 13,
         "gridHeight": 14,
         "sprite": [
-            "assets/locations/location_shed_0.png"
+            "assets/locations/loc_shed_0.png"
         ],
         "blockedAreas": [
             {"x": 0, "y": 0, "width": 13, "height": 4},
