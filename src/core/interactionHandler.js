@@ -43,6 +43,12 @@ async function findPlacementAtGrid(gridX, gridY, appState) {
 }
 
 async function handleMouseDown(event, canvas, appState) {
+    // Ignore non-left-click events (middle click for panning, right click for context menu)
+    if (event.button !== 0) {
+        console.log(`Ignoring mouse button ${event.button} (not left-click)`);
+        return;
+    }
+
     // Safety: Cancel any previous drag operation
     if (isDragging) {
         console.log("Cancelling previous drag operation");

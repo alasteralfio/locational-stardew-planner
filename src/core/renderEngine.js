@@ -116,6 +116,22 @@ async function drawSingleObject(placement) {
     const spriteImg = await loadSprite(objectDef.sprite);
 
     const { pixelX, pixelY } = gridToPixel(placement.gridX, placement.gridY);
+    
+    // Calculate sprite positioning
+    // Sprites are anchored at bottom-left in Stardew Valley
+    // Offset from footprint center if sprite is wider/taller than footprint
+    const footprintPixelWidth = TILE_SIZE * objectDef.footprintWidth;
+    const footprintPixelHeight = TILE_SIZE * objectDef.footprintHeight;
+    
+    // Use explicit tile dimensions if available, otherwise use actual image dimensions
+    const spritePixelWidth = objectDef.tileWidth || spriteImg.width;
+    const spritePixelHeight = objectDef.tileHeight || spriteImg.height;
+    
+    // Center horizontally, align bottom vertically
+    const spriteOffsetX = (footprintPixelWidth - spritePixelWidth) / 2;
+    const spriteOffsetY = footprintPixelHeight - spritePixelHeight;
+    const spritePixelX = pixelX + spriteOffsetX;
+    const spritePixelY = pixelY + spriteOffsetY;
 
     if (placement.layer === 2 && ctx.paths) {
         console.log(`Drawing path on layer 2`);
@@ -123,44 +139,58 @@ async function drawSingleObject(placement) {
             ctx.paths.drawImage(
                 spriteImg,
                 objectDef.atlasCoord.x, objectDef.atlasCoord.y,
-                TILE_SIZE, TILE_SIZE,
-                pixelX, pixelY,
-                TILE_SIZE * objectDef.footprintWidth,
-                TILE_SIZE * objectDef.footprintHeight
+                objectDef.tileWidth, objectDef.tileHeight,
+                spritePixelX, spritePixelY,
+                spritePixelWidth, spritePixelHeight
             );
         } else {
-            ctx.paths.drawImage(spriteImg, pixelX, pixelY);
+            ctx.paths.drawImage(spriteImg, spritePixelX, spritePixelY);
         }
     } else if (placement.layer === 3 && fabricCanvas) {
-        console.log(`Drawing on layer 3 (Fabric) - creating rect at [${pixelX}, ${pixelY}] size ${TILE_SIZE * objectDef.footprintWidth}x${TILE_SIZE * objectDef.footprintHeight}`);
-        const fabricObj = new fabric.Rect({
-            left: pixelX,
-            top: pixelY,
-            width: TILE_SIZE * objectDef.footprintWidth,
-            height: TILE_SIZE * objectDef.footprintHeight,
-            fill: 'rgba(70, 130, 180, 0.7)',
-            stroke: 'rgba(255, 255, 255, 0.5)',
-            strokeWidth: 1,
+        console.log(`Drawing on layer 3 (Fabric) - creating image at [${spritePixelX}, ${spritePixelY}]`);
+        
+        let imgToUse = spriteImg;
+        // For atlas items, create a temporary canvas with the cropped portion
+        if (objectDef.spriteType === 'atlas') {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = objectDef.tileWidth;
+            tempCanvas.height = objectDef.tileHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(
+                spriteImg,
+                objectDef.atlasCoord.x, objectDef.atlasCoord.y,
+                objectDef.tileWidth, objectDef.tileHeight,
+                0, 0,
+                objectDef.tileWidth, objectDef.tileHeight
+            );
+            imgToUse = tempCanvas;
+        }
+        
+        // Create fabric.Image from the sprite (cropped if atlas)
+        const fabricImg = new fabric.Image(imgToUse, {
+            left: spritePixelX,
+            top: spritePixelY,
+            scaleX: 1,
+            scaleY: 1,
             selectable: true,
             hasControls: false,
-            data: { id: placement.id, objectKey: placement.objectKey }
+            data: { id: placement.id, objectKey: placement.objectKey, footprintWidth: objectDef.footprintWidth, footprintHeight: objectDef.footprintHeight }
         });
-        fabricCanvas.add(fabricObj);
+        fabricCanvas.add(fabricImg);
         fabricCanvas.renderAll();
-        console.log(`Added to Fabric canvas, total objects: ${fabricCanvas.getObjects().length}`);
+        console.log(`Added sprite image to Fabric canvas, total objects: ${fabricCanvas.getObjects().length}`);
     } else if (placement.layer === 4 && ctx.front) {
         console.log(`Drawing on layer 4`);
         if (objectDef.spriteType === 'atlas') {
             ctx.front.drawImage(
                 spriteImg,
                 objectDef.atlasCoord.x, objectDef.atlasCoord.y,
-                TILE_SIZE, TILE_SIZE,
-                pixelX, pixelY,
-                TILE_SIZE * objectDef.footprintWidth,
-                TILE_SIZE * objectDef.footprintHeight
+                objectDef.tileWidth, objectDef.tileHeight,
+                spritePixelX, spritePixelY,
+                spritePixelWidth, spritePixelHeight
             );
         } else {
-            ctx.front.drawImage(spriteImg, pixelX, pixelY);
+            ctx.front.drawImage(spriteImg, spritePixelX, spritePixelY);
         }
     } else {
         console.warn(`No context for layer ${placement.layer}`, {layer: placement.layer, fabricCanvas: !!fabricCanvas, ctxFront: !!ctx.front, ctxPaths: !!ctx.paths});

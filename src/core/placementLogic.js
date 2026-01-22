@@ -79,6 +79,11 @@ async function isValidPlacement(appState, objectKey, gridX, gridY, layer, exclud
         return { valid: false, reason: 'Object definition not found' };
     }
 
+    // Prevent wallpaper and flooring from being placed as regular objects
+    if (objectDef.category === 'wallpaper') {
+        return { valid: false, reason: 'Wallpaper placement coming soon' };
+    }
+
     const footprintWidth = objectDef.footprintWidth || 1;
     const footprintHeight = objectDef.footprintHeight || 1;
 
