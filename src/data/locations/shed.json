@@ -1,0 +1,23 @@
+{
+    "name": "Shed",
+    "gridWidth": 13,
+    "gridHeight": 14,
+    "sprite": [
+        "assets/locations/loc_shed_0.png"
+    ],
+    "blockedAreas": [
+        {"x": 0, "y": 0, "width": 13, "height": 4},
+        {"x": 0, "y": 4, "width": 1, "height": 9},
+        {"x": 12, "y": 4, "width": 1, "height": 9},
+        {"x": 0, "y": 13, "width": 13, "height": 1}
+    ],
+    "canPlaceWalls": true,
+    "wallpaperAreas": [
+        {"x": 1, "y": 1, "width": 11, "height": 3}
+    ],
+    "flooringAreas": [
+        {"x": 1, "y": 4, "width": 11, "height": 9},
+        {"x": 6, "y": 13, "width": 1, "height": 1}
+    ],
+    "indoors": true
+}
