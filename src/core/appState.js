@@ -194,5 +194,17 @@ appState.getZoomLevel = function() {
     return this.viewportState.zoomLevel;
 };
 
+// Ensure a location exists in modifiedLocations, initialize if not
+appState.ensureLocationExists = function(locationKey) {
+    if (!this.modifiedLocations.find(loc => loc.locationKey === locationKey)) {
+        this.modifiedLocations.push({
+            locationKey: locationKey,
+            buildings: [],
+            directPlacements: []
+        });
+        console.log(`[appState] Created entry for location: ${locationKey}`);
+    }
+};
+
 // Export for modules (remove the window assignment)
 export { appState };

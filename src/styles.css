@@ -284,6 +284,41 @@ body {
     opacity: 0.8;
 }
 
+#location-selector-container {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+    padding: 0 var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+#location-selector-container label {
+    color: #333;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+#location-dropdown {
+    flex: 1;
+    padding: 6px 12px;
+    border: 1px solid #999;
+    border-radius: var(--border-radius-sm);
+    background: white;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#location-dropdown:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#location-dropdown:hover:not(:disabled) {
+    border-color: var(--color-accent-blue);
+}
+
 #status-bar {
     position: absolute;
     bottom: var(--space-md);

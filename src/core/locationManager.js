@@ -64,6 +64,7 @@ export function getAvailableLocations() {
         key: key,
         name: locationsData[key].name,
         gridWidth: locationsData[key].gridWidth,
-        gridHeight: locationsData[key].gridHeight
+        gridHeight: locationsData[key].gridHeight,
+        indoors: locationsData[key].indoors || false
     }));
 }

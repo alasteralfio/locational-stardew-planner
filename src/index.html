@@ -50,10 +50,16 @@
                         </div>
                         <div id="objects-grid"></div>
                         <div id="settings-panel">
-                            <button>Save Layout</button>
-                            <button>Load Layout</button>
-                            <button>New Layout</button>
-                            <button>Debug State</button>
+                            <div id="location-selector-container">
+                                <label for="location-dropdown">Location:</label>
+                                <select id="location-dropdown">
+                                    <option value="">Loading locations...</option>
+                                </select>
+                            </div>
+                            <button id="save-layout-btn">Save Layout</button>
+                            <button id="load-layout-btn">Load Layout</button>
+                            <button id="new-layout-btn">New Layout</button>
+                            <button id="debug-state-btn">Debug State</button>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import { loadObjects } from '../core/assetLoader.js';
+import { getAvailableLocations } from '../core/locationManager.js';
 
 class PaletteController {
     constructor(appState) {
@@ -8,6 +9,7 @@ class PaletteController {
         this.filteredObjects = [];
         this.searchTimeout = null;
         this.eventListeners = new Map(); // Track event listeners for cleanup
+        this.isSwitchingLocation = false; // Prevent race conditions during location switch
         
         this.init();
     }
@@ -18,8 +20,11 @@ class PaletteController {
         console.log('Palette controller initialized with', Object.keys(this.allObjects).length, 'objects');
         console.log('Sample objects:', Object.keys(this.allObjects).slice(0, 5));
         
-        // Setup event listeners
+        // Setup event listeners (including location dropdown)
         this.setupEventListeners();
+        
+        // Populate location dropdown with outdoor locations only
+        await this.populateLocationDropdown();
         
         // Make togglePalette globally available
         window.togglePalette = this.togglePalette.bind(this);
@@ -47,11 +52,22 @@ class PaletteController {
         const settingsBtns = document.querySelectorAll('#settings-panel button');
         settingsBtns.forEach((btn, idx) => {
             const btnHandler = (e) => {
-                this.handleSettingsButton(e.target.textContent);
+                this.handleSettingsButton(e.target.id || e.target.textContent);
             };
             btn.addEventListener('click', btnHandler);
             this.eventListeners.set(`settings-btn-${idx}`, { element: btn, handler: btnHandler, type: 'click' });
         });
+
+        // Location dropdown
+        const locationDropdown = document.getElementById('location-dropdown');
+        const dropdownHandler = (e) => {
+            const newLocation = e.target.value;
+            if (newLocation && newLocation !== this.appState.currentView.locationKey) {
+                this.handleLocationChange(newLocation);
+            }
+        };
+        locationDropdown.addEventListener('change', dropdownHandler);
+        this.eventListeners.set('location-dropdown', { element: locationDropdown, handler: dropdownHandler, type: 'change' });
         
         // Search - with debouncing
         const searchInput = document.getElementById('search-input');
@@ -73,6 +89,66 @@ class PaletteController {
         };
         loadFileInput.addEventListener('change', loadHandler);
         this.eventListeners.set('loadFileInput', { element: loadFileInput, handler: loadHandler, type: 'change' });
+    }
+    
+    
+    async populateLocationDropdown() {
+        try {
+            const locations = await getAvailableLocations();
+            const dropdown = document.getElementById('location-dropdown');
+            
+            // Filter to only outdoor locations (indoors: false)
+            const outdoorLocations = locations.filter(loc => !loc.indoors);
+            
+            console.log('Available outdoor locations:', outdoorLocations);
+            
+            // Clear existing options (except the first)
+            dropdown.innerHTML = '';
+            
+            // Add options for each outdoor location
+            outdoorLocations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc.key;
+                option.textContent = loc.name;
+                dropdown.appendChild(option);
+            });
+            
+            // Set current location as selected
+            if (this.appState.currentView.locationKey) {
+                dropdown.value = this.appState.currentView.locationKey;
+            }
+            
+            console.log('Location dropdown populated with outdoor locations');
+        } catch (error) {
+            console.error('Failed to populate location dropdown:', error);
+        }
+    }
+    
+    async handleLocationChange(newLocationKey) {
+        if (this.isSwitchingLocation) {
+            console.log('Location switch already in progress, ignoring request');
+            return;
+        }
+        
+        this.isSwitchingLocation = true;
+        const dropdown = document.getElementById('location-dropdown');
+        dropdown.disabled = true;
+        
+        try {
+            console.log(`Switching location from ${this.appState.currentView.locationKey} to ${newLocationKey}`);
+            
+            // Call the render engine's location switch handler
+            await window.switchLocation(newLocationKey);
+            
+            console.log(`Successfully switched to location: ${newLocationKey}`);
+        } catch (error) {
+            console.error('Error switching location:', error);
+            // Revert dropdown to previous location on error
+            dropdown.value = this.appState.currentView.locationKey;
+        } finally {
+            this.isSwitchingLocation = false;
+            dropdown.disabled = false;
+        }
     }
     
     cleanup() {
@@ -267,18 +343,22 @@ class PaletteController {
     
     handleSettingsButton(action) {
         switch (action) {
+            case 'save-layout-btn':
             case 'Save Layout':
                 this.appState.saveCurrentLayout();
                 break;
+            case 'load-layout-btn':
             case 'Load Layout':
                 const loadFileInput = document.getElementById('loadFileInput');
                 // Reset the file input value to allow loading the same file multiple times
                 loadFileInput.value = '';
                 loadFileInput.click();
                 break;
+            case 'new-layout-btn':
             case 'New Layout':
                 this.appState.createNewLayout();
                 break;
+            case 'debug-state-btn':
             case 'Debug State':
                 console.log('Current appState:', this.appState);
                 break;

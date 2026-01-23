@@ -7,7 +7,7 @@ import { initViewportPanning } from './interactionHandler.js';
 import { PaletteController } from '../ui/paletteController.js';
 import { UIController } from './uiController.js';
 
-// Canvas state - keep these private to this module
+// Canvas state
 const canvases = {};
 const ctx = {};
 let fabricCanvas = null;
@@ -369,6 +369,77 @@ async function queuedDrawAllObjects() {
 }
 
 // Main initialization
+async function switchLocation(newLocationKey) {
+    console.log(`[switchLocation] Starting switch to ${newLocationKey}`);
+    const startTime = performance.now();
+    
+    try {
+        // Step 0: Ensure the location exists in modifiedLocations
+        window.appState.ensureLocationExists(newLocationKey);
+        
+        // Step 1: Save viewport state of current location
+        const currentLocationKey = window.appState.currentView.locationKey;
+        const currentViewport = window.appState.getLocationViewport(currentLocationKey);
+        console.log(`[switchLocation] Saving viewport for ${currentLocationKey}:`, currentViewport);
+        
+        // Step 2: Update appState to new location
+        window.appState.currentView.locationKey = newLocationKey;
+        setCurrentLocation(newLocationKey);
+        
+        // Step 3: Clear and resize canvases for new location
+        const location = getCurrentLocation();
+        console.log(`[switchLocation] New location dimensions: ${location.pixelWidth}x${location.pixelHeight}px`);
+        
+        // Resize all canvases to match new location
+        const layerIds = ["layer-0", "layer-1", "layer-2", "layer-3", "layer-4", "layer-5"];
+        const layerNames = ["terrain", "walls", "paths", "objects", "front", "overlay"];
+        
+        for (let i = 0; i < layerIds.length; i++) {
+            const canvas = canvases[layerNames[i]];
+            if (!canvas) continue;
+            
+            canvas.width = location.pixelWidth;
+            canvas.height = location.pixelHeight;
+            canvas.style.width = location.pixelWidth + 'px';
+            canvas.style.height = location.pixelHeight + 'px';
+            
+            // Clear non-Fabric contexts
+            if (layerNames[i] !== "objects" && ctx[layerNames[i]]) {
+                ctx[layerNames[i]].clearRect(0, 0, location.pixelWidth, location.pixelHeight);
+            }
+        }
+        
+        // Resize Fabric canvas
+        if (fabricCanvas) {
+            fabricCanvas.setWidth(location.pixelWidth);
+            fabricCanvas.setHeight(location.pixelHeight);
+            fabricCanvas.clear();
+        }
+        
+        console.log(`[switchLocation] Canvases resized`);
+        
+        // Step 4: Reset zoom to 1.0
+        window.appState.setZoomLevel(1.0);
+        console.log(`[switchLocation] Zoom reset to 1.0`);
+        
+        // Step 5: Restore or initialize scroll position for new location
+        const newLocationViewport = window.appState.getLocationViewport(newLocationKey);
+        console.log(`[switchLocation] Restoring viewport for ${newLocationKey}:`, newLocationViewport);
+        
+        // Step 6: Redraw everything
+        await drawBackground();
+        drawGrid();
+        await queuedDrawAllObjects();
+        
+        const elapsed = (performance.now() - startTime).toFixed(1);
+        console.log(`[switchLocation] Switch completed in ${elapsed}ms`);
+        
+    } catch (error) {
+        console.error('[switchLocation] Error during switch:', error);
+        throw error;
+    }
+}
+
 async function init() {
     console.log("Initializing render engine...");
     try {
@@ -417,5 +488,6 @@ async function init() {
 
 // Expose to window
 window.renderEngine = { init };
+window.switchLocation = switchLocation;
 export { init };
 export { ctx, canvases };
