@@ -55,6 +55,13 @@ const appState = {
         zoomLevel: 1.0, // Global zoom level (0.3x to 3.0x)
         locationsViewport: {} // Per-location scroll: { [locationKey]: { scrollX: 0, scrollY: 0 } }
     },
+
+    // Settings for UI features
+    settings: {
+        showGrid: localStorage.getItem('planner-showGrid') !== 'false', // Default true
+        lowRenderMode: localStorage.getItem('planner-lowRenderMode') === 'true', // Default false
+        season: localStorage.getItem('planner-season') || 'Spring' // Default Spring
+    },
 };
 
 // Utility function to generate unique IDs for new placements
@@ -105,7 +112,8 @@ appState.saveCurrentLayout = function() {
     const layoutData = {
         version: "1.0",
         modifiedLocations: this.modifiedLocations,
-        currentView: this.currentView
+        currentView: this.currentView,
+        viewportState: this.viewportState  // Include zoom level and per-location scroll positions
     };
     
     const dataStr = JSON.stringify(layoutData, null, 2);
@@ -136,11 +144,27 @@ appState.loadLayout = function(file) {
                 this.modifiedLocations = data.modifiedLocations;
                 this.currentView = data.currentView || this.currentView;
                 
+                // Restore viewport state if it exists (backwards compatible)
+                if (data.viewportState) {
+                    this.viewportState = data.viewportState;
+                    console.log("Viewport state restored:", this.viewportState);
+                } else {
+                    // For old save files without viewport state, reset to defaults
+                    this.viewportState.zoomLevel = 1.0;
+                    this.viewportState.locationsViewport = {};
+                    console.log("Old save file format - viewport state reset to defaults");
+                }
+                
                 console.log("Layout loaded:", data);
                 
-                // Trigger re-render
+                // Trigger re-render and physically switch to the saved location
+                const locationToSwitchTo = data.currentView?.locationKey || "farm";
                 window.dispatchEvent(new CustomEvent('placementsUpdated'));
-                resolve(data);
+                if (window.switchLocation) {
+                    window.switchLocation(locationToSwitchTo).then(() => resolve(data)).catch(reject);
+                } else {
+                    resolve(data);
+                }
             } catch (error) {
                 console.error("Failed to load layout:", error);
                 alert("Failed to load layout: " + error.message);
@@ -153,7 +177,7 @@ appState.loadLayout = function(file) {
 };
 
 // Create a new empty layout
-appState.createNewLayout = function() {
+appState.createNewLayout = async function() {
     this.modifiedLocations = [
         {
             locationKey: "farm",
@@ -163,12 +187,21 @@ appState.createNewLayout = function() {
     ];
     this.currentView = { locationKey: "farm" };
     
-    console.log("New layout created, dispatching update event");
+    // Reset viewport for new layout
+    this.viewportState.zoomLevel = 1.0;
+    this.viewportState.locationsViewport = {};
     
-    // Trigger re-render with a slight delay to ensure state is updated
-    setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('placementsUpdated'));
-    }, 0);
+    console.log("New layout created, switching to farm and redrawing");
+    
+    // Use switchLocation to actually redraw the canvas and ensure visual state matches appState
+    if (window.switchLocation) {
+        await window.switchLocation("farm");
+    } else {
+        // Fallback if switchLocation not available yet
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('placementsUpdated'));
+        }, 0);
+    }
 };
 
 // Get viewport state for a specific location (initializes if not exists)
@@ -204,6 +237,17 @@ appState.ensureLocationExists = function(locationKey) {
         });
         console.log(`[appState] Created entry for location: ${locationKey}`);
     }
+};
+
+// Get the current season's atlas index (Spring=0, Summer=1, Fall=2, Winter=3)
+appState.getSeasonAtlasIndex = function() {
+    const seasonMap = {
+        'Spring': 0,
+        'Summer': 1,
+        'Fall': 2,
+        'Winter': 3
+    };
+    return seasonMap[this.settings.season] || 0;
 };
 
 // Export for modules (remove the window assignment)

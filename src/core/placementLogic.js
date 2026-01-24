@@ -26,26 +26,30 @@ function isInBlockedArea(gridX, gridY, footprintWidth, footprintHeight, blockedA
 async function collidesWithExistingObjects(gridX, gridY, footprintWidth, footprintHeight, existingPlacements, layer, excludeId = null) {
     if (!existingPlacements) return false;
 
-    for (const existing of existingPlacements) {
-        if (existing.layer !== layer || existing.id === excludeId) continue;
+    // Filter to same layer first - huge optimization for large placement arrays
+    const sameLayerPlacements = existingPlacements.filter(p => p.layer === layer && p.id !== excludeId);
+    if (!sameLayerPlacements.length) return false;
 
-        const existingDef = await fetchObjectDefinition(existing.objectKey);
-        const existingWidth = existingDef ? (existingDef.footprintWidth || 1) : 1;
-        const existingHeight = existingDef ? (existingDef.footprintHeight || 1) : 1;
-
-        for (let x = 0; x < footprintWidth; x++) {
-            for (let y = 0; y < footprintHeight; y++) {
-                const checkX = gridX + x;
-                const checkY = gridY + y;
-
-                if (checkX >= existing.gridX && 
-                    checkX < existing.gridX + existingWidth &&
-                    checkY >= existing.gridY && 
-                    checkY < existing.gridY + existingHeight) {
-                    return true;
-                }
-            }
+    // Simple AABB (axis-aligned bounding box) collision
+    for (const existing of sameLayerPlacements) {
+        let existingWidth = existing.footprintWidth;
+        let existingHeight = existing.footprintHeight;
+        
+        // If footprint not stored on placement, fetch from definition (for legacy placements)
+        if (!existingWidth || !existingHeight) {
+            const existingDef = await fetchObjectDefinition(existing.objectKey);
+            existingWidth = existingDef ? (existingDef.footprintWidth || 1) : 1;
+            existingHeight = existingDef ? (existingDef.footprintHeight || 1) : 1;
         }
+
+        // Check if bounding boxes overlap
+        if (gridX < existing.gridX + existingWidth &&
+            gridX + footprintWidth > existing.gridX &&
+            gridY < existing.gridY + existingHeight &&
+            gridY + footprintHeight > existing.gridY) {
+            return true;
+        }
+
     }
     return false;
 }
@@ -129,12 +133,19 @@ export async function placeObjectAtGrid(appState, objectKey, gridX, gridY, layer
         loc => loc.locationKey === appState.currentView.locationKey
     );
 
+    // Fetch footprint for the new placement to store it
+    const objectDef = await fetchObjectDefinition(objectKey);
+    const footprintWidth = objectDef ? (objectDef.footprintWidth || 1) : 1;
+    const footprintHeight = objectDef ? (objectDef.footprintHeight || 1) : 1;
+
     const newPlacement = {
         id: appState.generatePlacementId(),
         objectKey: objectKey,
         gridX: gridX,
         gridY: gridY,
-        layer: layer
+        layer: layer,
+        footprintWidth: footprintWidth,
+        footprintHeight: footprintHeight
     };
 
     currentLocation.directPlacements.push(newPlacement);

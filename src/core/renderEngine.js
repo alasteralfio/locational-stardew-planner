@@ -79,8 +79,12 @@ async function drawBackground() {
 
     terrainCtx.clearRect(0, 0, location.pixelWidth, location.pixelHeight);
     
+    // Use the seasonal variant of the map background
+    const seasonIndex = window.appState ? window.appState.getSeasonAtlasIndex() : 0;
+    const bgImageSrc = location.sprite[seasonIndex];
+    
     const bgImage = new Image();
-    bgImage.src = location.sprite[0]; // Spring season
+    bgImage.src = bgImageSrc;
     
     await new Promise((resolve) => {
         bgImage.onload = () => {
@@ -88,7 +92,7 @@ async function drawBackground() {
             resolve();
         };
         bgImage.onerror = () => {
-            console.error("Background failed to load");
+            console.error("Background failed to load:", bgImageSrc);
             resolve();
         };
     });
@@ -113,8 +117,6 @@ async function drawSingleObject(placement) {
 
     console.log(`Drawing ${placement.objectKey} on layer ${placement.layer} at [${placement.gridX}, ${placement.gridY}]`);
 
-    const spriteImg = await loadSprite(objectDef.sprite);
-
     const { pixelX, pixelY } = gridToPixel(placement.gridX, placement.gridY);
     
     // Calculate sprite positioning
@@ -122,6 +124,69 @@ async function drawSingleObject(placement) {
     // Offset from footprint center if sprite is wider/taller than footprint
     const footprintPixelWidth = TILE_SIZE * objectDef.footprintWidth;
     const footprintPixelHeight = TILE_SIZE * objectDef.footprintHeight;
+
+    // Check if low-render mode is enabled
+    const lowRenderMode = window.appState && window.appState.settings && window.appState.settings.lowRenderMode;
+    
+    if (lowRenderMode) {
+        // Low-render mode: draw colored rectangles instead of sprites
+        const colors = {
+            'buildings': '#2563EB',
+            'crops': '#16A34A',
+            'decor': '#92400E',
+            'machines': '#6B7280',
+            'wallpaper': '#9CA3AF',
+            'flooring': '#9CA3AF'
+        };
+        const color = colors[objectDef.category] || '#666666';
+        
+        // Draw on layer 3 (fabric layer) for interactive objects, layer 2 for paths
+        if (placement.layer === 2 && ctx.paths) {
+            ctx.paths.fillStyle = color;
+            ctx.paths.globalAlpha = 0.7;
+            ctx.paths.fillRect(pixelX, pixelY, footprintPixelWidth, footprintPixelHeight);
+            ctx.paths.globalAlpha = 1.0;
+            ctx.paths.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.paths.lineWidth = 1;
+            ctx.paths.strokeRect(pixelX, pixelY, footprintPixelWidth, footprintPixelHeight);
+        } else if (placement.layer === 3 && fabricCanvas) {
+            // Create fabric rectangle for low-render mode
+            const fabricRect = new fabric.Rect({
+                left: pixelX,
+                top: pixelY,
+                width: footprintPixelWidth,
+                height: footprintPixelHeight,
+                fill: color,
+                opacity: 0.7,
+                stroke: 'rgba(0,0,0,0.3)',
+                strokeWidth: 1,
+                selectable: true,
+                hasControls: false,
+                data: { id: placement.id, objectKey: placement.objectKey, footprintWidth: objectDef.footprintWidth, footprintHeight: objectDef.footprintHeight }
+            });
+            fabricCanvas.add(fabricRect);
+            fabricCanvas.renderAll();
+        } else if (placement.layer === 4 && ctx.front) {
+            ctx.front.fillStyle = color;
+            ctx.front.globalAlpha = 0.7;
+            ctx.front.fillRect(pixelX, pixelY, footprintPixelWidth, footprintPixelHeight);
+            ctx.front.globalAlpha = 1.0;
+            ctx.front.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.front.lineWidth = 1;
+            ctx.front.strokeRect(pixelX, pixelY, footprintPixelWidth, footprintPixelHeight);
+        }
+        return;
+    }
+    
+    // Normal rendering mode: draw sprites
+    // For seasonal objects, load the correct seasonal sprite file
+    let spriteUrl = objectDef.sprite;
+    if (objectDef.hasSeasonalVariants && Array.isArray(objectDef.sprite)) {
+        const seasonIndex = window.appState ? window.appState.getSeasonAtlasIndex() : 0;
+        spriteUrl = objectDef.sprite[seasonIndex];
+    }
+    
+    const spriteImg = await loadSprite(spriteUrl);
     
     // Use explicit tile dimensions if available, otherwise use actual image dimensions
     const spritePixelWidth = objectDef.tileWidth || spriteImg.width;
@@ -133,12 +198,15 @@ async function drawSingleObject(placement) {
     const spritePixelX = pixelX + spriteOffsetX;
     const spritePixelY = pixelY + spriteOffsetY;
 
+    // Use atlas coordinates directly - they're the same across all seasons
+    const atlasCoord = objectDef.atlasCoord;
+
     if (placement.layer === 2 && ctx.paths) {
         console.log(`Drawing path on layer 2`);
         if (objectDef.spriteType === 'atlas') {
             ctx.paths.drawImage(
                 spriteImg,
-                objectDef.atlasCoord.x, objectDef.atlasCoord.y,
+                atlasCoord.x, atlasCoord.y,
                 objectDef.tileWidth, objectDef.tileHeight,
                 spritePixelX, spritePixelY,
                 spritePixelWidth, spritePixelHeight
@@ -158,7 +226,7 @@ async function drawSingleObject(placement) {
             const tempCtx = tempCanvas.getContext('2d');
             tempCtx.drawImage(
                 spriteImg,
-                objectDef.atlasCoord.x, objectDef.atlasCoord.y,
+                atlasCoord.x, atlasCoord.y,
                 objectDef.tileWidth, objectDef.tileHeight,
                 0, 0,
                 objectDef.tileWidth, objectDef.tileHeight
@@ -184,7 +252,7 @@ async function drawSingleObject(placement) {
         if (objectDef.spriteType === 'atlas') {
             ctx.front.drawImage(
                 spriteImg,
-                objectDef.atlasCoord.x, objectDef.atlasCoord.y,
+                atlasCoord.x, atlasCoord.y,
                 objectDef.tileWidth, objectDef.tileHeight,
                 spritePixelX, spritePixelY,
                 spritePixelWidth, spritePixelHeight
@@ -222,6 +290,7 @@ async function drawAllObjects() {
     const sorted = ySortPlacements(currentLocationData.directPlacements);
     for (const placement of sorted) {
         try {
+            
             await drawSingleObject(placement);
         } catch (error) {
             console.error(`Failed to draw ${placement.objectKey}:`, error);
@@ -284,20 +353,28 @@ function updateOverlay() {
 
     overlayCtx.clearRect(0, 0, location.pixelWidth, location.pixelHeight);
     
-    overlayCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-    overlayCtx.lineWidth = 1;
-    overlayCtx.beginPath();
+    // Draw grid only if showGrid is enabled
+    if (window.appState && window.appState.settings && window.appState.settings.showGrid) {
+        // Use darker grid in winter for visibility against white snow
+        const season = window.appState.settings.season;
+        const gridColor = season === 'Winter' ? "rgba(60, 60, 60, 0.35)" : "rgba(255, 255, 255, 0.15)";
+        
+        overlayCtx.strokeStyle = gridColor;
+        overlayCtx.lineWidth = 1;
+        overlayCtx.beginPath();
 
-    for (let x = 0; x <= location.pixelWidth; x += TILE_SIZE) {
-        overlayCtx.moveTo(x + 0.5, 0);
-        overlayCtx.lineTo(x + 0.5, location.pixelHeight);
-    }
-    for (let y = 0; y <= location.pixelHeight; y += TILE_SIZE) {
-        overlayCtx.moveTo(0, y + 0.5);
-        overlayCtx.lineTo(location.pixelWidth, y + 0.5);
-    }
+        for (let x = 0; x <= location.pixelWidth; x += TILE_SIZE) {
+            overlayCtx.moveTo(x + 0.5, 0);
+            overlayCtx.lineTo(x + 0.5, location.pixelHeight);
+        }
+        for (let y = 0; y <= location.pixelHeight; y += TILE_SIZE) {
+            overlayCtx.moveTo(0, y + 0.5);
+            overlayCtx.lineTo(location.pixelWidth, y + 0.5);
+        }
 
-    overlayCtx.stroke();
+        overlayCtx.stroke();
+    }
+    
     drawPreviewHighlights(window.appState);
     
     // Draw drag ghost with full footprint
@@ -363,6 +440,33 @@ async function queuedDrawAllObjects() {
             drawTimeoutId = setTimeout(() => {
                 drawTimeoutId = null;
                 queuedDrawAllObjects();
+            }, 0);
+        }
+    }
+}
+
+// Full redraw including background (used for season changes)
+async function queuedFullRedraw() {
+    if (isDrawing) {
+        pendingDraw = true;
+        return;
+    }
+    
+    isDrawing = true;
+    try {
+        await drawBackground();
+        drawGrid();
+        await drawAllObjects();
+    } catch (error) {
+        console.error('Error during full redraw:', error);
+    } finally {
+        isDrawing = false;
+        
+        if (pendingDraw) {
+            pendingDraw = false;
+            drawTimeoutId = setTimeout(() => {
+                drawTimeoutId = null;
+                queuedFullRedraw();
             }, 0);
         }
     }
@@ -500,5 +604,7 @@ async function init() {
 // Expose to window
 window.renderEngine = { init };
 window.switchLocation = switchLocation;
+window.queuedDrawAllObjects = queuedDrawAllObjects;
+window.queuedFullRedraw = queuedFullRedraw;
 export { init };
 export { ctx, canvases };

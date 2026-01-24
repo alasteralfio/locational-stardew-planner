@@ -69,6 +69,61 @@ class PaletteController {
         locationDropdown.addEventListener('change', dropdownHandler);
         this.eventListeners.set('location-dropdown', { element: locationDropdown, handler: dropdownHandler, type: 'change' });
         
+        // Grid toggle
+        const gridToggle = document.getElementById('grid-toggle');
+        if (gridToggle) {
+            const gridHandler = (e) => {
+                this.appState.settings.showGrid = e.target.checked;
+                localStorage.setItem('planner-showGrid', e.target.checked);
+                window.dispatchEvent(new CustomEvent('settingsChanged'));
+                // Grid only affects overlay, so just redraw overlay
+                const location = this.appState.currentView.locationKey;
+                const canvases = document.querySelectorAll('canvas');
+                if (canvases.length > 0) {
+                    const event = new CustomEvent('placementsUpdated');
+                    window.dispatchEvent(event);
+                }
+            };
+            gridToggle.checked = this.appState.settings.showGrid;
+            gridToggle.addEventListener('change', gridHandler);
+            this.eventListeners.set('grid-toggle', { element: gridToggle, handler: gridHandler, type: 'change' });
+        }
+        
+        // Low-render mode toggle
+        const lowRenderToggle = document.getElementById('low-render-toggle');
+        if (lowRenderToggle) {
+            const lowRenderHandler = async (e) => {
+                this.appState.settings.lowRenderMode = e.target.checked;
+                localStorage.setItem('planner-lowRenderMode', e.target.checked);
+                window.dispatchEvent(new CustomEvent('settingsChanged'));
+                // Need to fully redraw all objects when switching render modes
+                if (window.queuedDrawAllObjects) {
+                    await window.queuedDrawAllObjects();
+                }
+            };
+            lowRenderToggle.checked = this.appState.settings.lowRenderMode;
+            lowRenderToggle.addEventListener('change', lowRenderHandler);
+            this.eventListeners.set('low-render-toggle', { element: lowRenderToggle, handler: lowRenderHandler, type: 'change' });
+        }
+        
+        // Season dropdown
+        const seasonDropdown = document.getElementById('season-dropdown');
+        if (seasonDropdown) {
+            const seasonHandler = async (e) => {
+                this.appState.settings.season = e.target.value;
+                localStorage.setItem('planner-season', e.target.value);
+                window.dispatchEvent(new CustomEvent('settingsChanged'));
+                // Need to redraw background (for map seasonal variant) and all objects
+                // Use queuedFullRedraw which redraws background, grid, and objects
+                if (window.queuedFullRedraw) {
+                    await window.queuedFullRedraw();
+                }
+            };
+            seasonDropdown.value = this.appState.settings.season;
+            seasonDropdown.addEventListener('change', seasonHandler);
+            this.eventListeners.set('season-dropdown', { element: seasonDropdown, handler: seasonHandler, type: 'change' });
+        }
+        
         // Search - with debouncing
         const searchInput = document.getElementById('search-input');
         const searchHandler = (e) => {
@@ -356,6 +411,7 @@ class PaletteController {
                 break;
             case 'new-layout-btn':
             case 'New Layout':
+                // createNewLayout is now async, so await it
                 this.appState.createNewLayout();
                 break;
             case 'debug-state-btn':
