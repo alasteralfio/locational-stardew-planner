@@ -1,0 +1,19 @@
+{
+    "name": "Tunnel",
+    "gridWidth": 40,
+    "gridHeight": 15,
+    "sprite": [
+        "assets/locations/tunnel_0.png"
+    ],
+    "frontLayer": [
+        "assets/locations/front/tunnel_0_front.png"
+    ],
+    "blockedAreas": [
+        {"x": 0, "y": 0, "width": 40, "height": 7},
+        {"x": 6, "y": 7, "width": 1, "height": 8},
+        {"x": 0, "y": 13, "width": 6, "height": 2},
+        {"x": 7, "y": 13, "width": 33, "height": 2}
+    ],
+    "canPlaceWalls": false,
+    "indoors": true
+}

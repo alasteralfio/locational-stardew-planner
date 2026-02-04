@@ -3,16 +3,10 @@
     "gridWidth": 50,
     "gridHeight": 60,
     "sprite": [
-        "assets/locations/desert_0.png",
-        "assets/locations/desert_1.png",
-        "assets/locations/desert_2.png",
-        "assets/locations/desert_3.png"
+        "assets/locations/desert_0.png"
     ],
     "frontLayer": [
-        "assets/locations/front/desert_0_front.png",
-        "assets/locations/front/desert_1_front.png",
-        "assets/locations/front/desert_2_front.png",
-        "assets/locations/front/desert_3_front.png"
+        "assets/locations/front/desert_0_front.png"
     ],
     "blockedAreas": [
         {"x": 17, "y": 0, "width": 1, "height": 1},

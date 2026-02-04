@@ -1,0 +1,24 @@
+{
+    "name": "Deluxe Coop",
+    "gridWidth": 23,
+    "gridHeight": 10,
+    "sprite": [
+        "assets/locations/loc_coop_2.png"
+    ],
+    "frontLayer": [
+        "assets/locations/front/loc_coop_2_front.png"
+    ],
+    "blockedAreas": [
+        {"x": 0, "y": 0, "width": 23, "height": 3},
+        {"x": 0, "y": 3, "width": 2, "height": 1},
+        {"x": 5, "y": 3, "width": 1, "height": 1},
+        {"x": 18, "y": 3, "width": 5, "height": 1},
+        {"x": 0, "y": 4, "width": 1, "height": 6},
+        {"x": 21, "y": 4, "width": 2, "height": 3},
+        {"x": 1, "y": 6, "width": 1, "height": 4},
+        {"x": 22, "y": 7, "width": 1, "height": 3},
+        {"x": 3, "y": 9, "width": 19, "height": 1}
+    ],
+    "canPlaceWalls": false,
+    "indoors": true
+}

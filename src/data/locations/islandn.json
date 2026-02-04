@@ -3,16 +3,10 @@
     "gridWidth": 70,
     "gridHeight": 90,
     "sprite": [
-        "assets/locations/islandn_0.png",
-        "assets/locations/islandn_1.png",
-        "assets/locations/islandn_2.png",
-        "assets/locations/islandn_3.png"
+        "assets/locations/islandn_0.png"
     ],
     "frontLayer": [
-        "assets/locations/front/islandn_0_front.png",
-        "assets/locations/front/islandn_1_front.png",
-        "assets/locations/front/islandn_2_front.png",
-        "assets/locations/front/islandn_3_front.png"
+        "assets/locations/front/islandn_0_front.png"
     ],
     "blockedAreas": [
         {"x": 29, "y": 0, "width": 24, "height": 14},

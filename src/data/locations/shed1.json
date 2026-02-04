@@ -1,0 +1,28 @@
+{
+    "name": "Big Shed",
+    "gridWidth": 19,
+    "gridHeight": 17,
+    "sprite": [
+        "assets/locations/loc_shed_1.png"
+    ],
+    "frontLayer": [
+        "assets/locations/front/loc_shed_1_front.png"
+    ],
+    "blockedAreas": [
+        {"x": 0, "y": 0, "width": 19, "height": 1},
+        {"x": 0, "y": 1, "width": 1, "height": 16},
+        {"x": 18, "y": 1, "width": 1, "height": 16},
+        {"x": 1, "y": 3, "width": 17, "height": 1},
+        {"x": 1, "y": 16, "width": 8, "height": 1},
+        {"x": 10, "y": 16, "width": 8, "height": 1}
+    ],
+    "canPlaceWalls": true,
+    "wallpaperAreas": [
+        {"x": 1, "y": 1, "width": 17, "height": 3}
+    ],
+    "flooringAreas": [
+        {"x": 1, "y": 3, "width": 17, "height": 13},
+        {"x": 9, "y": 16, "width": 1, "height": 1}
+    ],
+    "indoors": true
+}

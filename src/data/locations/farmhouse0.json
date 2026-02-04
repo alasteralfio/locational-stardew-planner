@@ -1,0 +1,28 @@
+{
+    "name": "Farmhouse 1",
+    "gridWidth": 12,
+    "gridHeight": 12,
+    "sprite": [
+        "assets/locations/loc_farmhouse_0.png"
+    ],
+    "frontLayer": [
+        "assets/locations/front/loc_farmhouse_0_front.png"
+    ],
+    "blockedAreas": [
+        {"x": 0, "y": 0, "width": 12, "height": 1},
+        {"x": 0, "y": 1, "width": 1, "height": 11},
+        {"x": 11, "y": 1, "width": 1, "height": 11},
+        {"x": 1, "y": 3, "width": 10, "height": 1},
+        {"x": 1, "y": 11, "width": 2, "height": 1},
+        {"x": 4, "y": 11, "width": 7, "height": 1}
+    ],
+    "canPlaceWalls": true,
+    "wallpaperAreas": [
+        {"x": 1, "y": 1, "width": 10, "height": 3}
+    ],
+    "flooringAreas": [
+        {"x": 1, "y": 3, "width": 10, "height": 8},
+        {"x": 3, "y": 11, "width": 1, "height": 1}
+    ],
+    "indoors": true
+}

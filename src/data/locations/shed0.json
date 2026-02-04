@@ -5,18 +5,23 @@
     "sprite": [
         "assets/locations/loc_shed_0.png"
     ],
+    "frontLayer": [
+        "assets/locations/front/loc_shed_0_front.png"
+    ],
     "blockedAreas": [
-        {"x": 0, "y": 0, "width": 13, "height": 4},
-        {"x": 0, "y": 4, "width": 1, "height": 9},
-        {"x": 12, "y": 4, "width": 1, "height": 9},
-        {"x": 0, "y": 13, "width": 13, "height": 1}
+        {"x": 0, "y": 0, "width": 13, "height": 1},
+        {"x": 0, "y": 1, "width": 1, "height": 13},
+        {"x": 12, "y": 1, "width": 1, "height": 13},
+        {"x": 1, "y": 3, "width": 11, "height": 1},
+        {"x": 1, "y": 13, "width": 5, "height": 1},
+        {"x": 7, "y": 13, "width": 5, "height": 1}
     ],
     "canPlaceWalls": true,
     "wallpaperAreas": [
         {"x": 1, "y": 1, "width": 11, "height": 3}
     ],
     "flooringAreas": [
-        {"x": 1, "y": 4, "width": 11, "height": 9},
+        {"x": 1, "y": 3, "width": 11, "height": 10},
         {"x": 6, "y": 13, "width": 1, "height": 1}
     ],
     "indoors": true

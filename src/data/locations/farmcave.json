@@ -1,0 +1,26 @@
+{
+    "name": "Farm Cave",
+    "gridWidth": 12,
+    "gridHeight": 14,
+    "sprite": [
+        "assets/locations/farmcave_0.png"
+    ],
+    "frontLayer": [
+        "assets/locations/front/farmcave_0_front.png"
+    ],
+    "blockedAreas": [
+        {"x": 2, "y": 0, "width": 10, "height": 4},
+        {"x": 1, "y": 1, "width": 1, "height": 9},
+        {"x": 2, "y": 4, "width": 2, "height": 1},
+        {"x": 9, "y": 4, "width": 3, "height": 1},
+        {"x": 11, "y": 5, "width": 1, "height": 5},
+        {"x": 2, "y": 10, "width": 1, "height": 1},
+        {"x": 10, "y": 10, "width": 1, "height": 2},
+        {"x": 3, "y": 11, "width": 5, "height": 1},
+        {"x": 9, "y": 11, "width": 1, "height": 2},
+        {"x": 7, "y": 12, "width": 1, "height": 1},
+        {"x": 8, "y": 13, "width": 1, "height": 1}
+    ],
+    "canPlaceWalls": false,
+    "indoors": true
+}
