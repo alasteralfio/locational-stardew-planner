@@ -318,7 +318,7 @@
         "seasonal": false,
         "spriteType": "atlas",
         "sprite": ["assets/objects/buildings/cabin_2.png"],
-        "atlasCoord": { "x": 240, "y": 0 },
+        "atlasCoord": { "x": 0, "y": 224 },
         "tileWidth": 80,
         "tileHeight": 112,
         "footprintWidth": 5,

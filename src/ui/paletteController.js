@@ -1,4 +1,4 @@
-import { loadObjects } from '../core/assetLoader.js';
+import { loadObjects, loadSprite } from '../core/assetLoader.js';
 import { getAvailableLocations } from '../core/locationManager.js';
 
 class PaletteController {
@@ -117,6 +117,10 @@ class PaletteController {
                 // Use queuedFullRedraw which redraws background, grid, and objects
                 if (window.queuedFullRedraw) {
                     await window.queuedFullRedraw();
+                }
+                // Refresh palette to update seasonal sprites
+                if (this.currentCategory) {
+                    this.renderObjectsGrid();
                 }
             };
             seasonDropdown.value = this.appState.settings.season;
@@ -380,20 +384,94 @@ class PaletteController {
         element.className = 'object-item';
         element.dataset.objectKey = obj.objectKey;
         element.title = obj.name;
-        element.innerHTML = `
-            <div class="object-preview">
-                ${obj.name.charAt(0)}
-            </div>
-            <div class="object-name">
-                ${obj.name}
-            </div>
-        `;
+        
+        // Create preview div
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'object-preview';
+        
+        // Render icon or sprite asynchronously
+        this.renderObjectPreview(obj, previewDiv);
+        
+        element.appendChild(previewDiv);
         
         element.addEventListener('click', () => {
             this.selectObject(obj);
         });
         
         return element;
+    }
+    
+    async renderObjectPreview(obj, container) {
+        try {
+            let imageUrl, atlasCoord, tileWidth, tileHeight;
+            
+            // Determine which image to use: icon or sprite
+            if (obj.icon) {
+                // Use icon atlas
+                if (Array.isArray(obj.icon)) {
+                    const seasonIndex = this.appState.currentSeason || 0;
+                    imageUrl = obj.icon[seasonIndex];
+                } else {
+                    imageUrl = obj.icon;
+                }
+                atlasCoord = obj.iconCoord || { x: 0, y: 0 };
+                // Icons are typically 16x16
+                tileWidth = 16;
+                tileHeight = 16;
+            } else {
+                // Use regular sprite
+                if (Array.isArray(obj.sprite)) {
+                    const seasonIndex = this.appState.currentSeason || 0;
+                    imageUrl = obj.sprite[seasonIndex];
+                } else {
+                    imageUrl = obj.sprite;
+                }
+                atlasCoord = obj.atlasCoord;
+                tileWidth = obj.tileWidth;
+                tileHeight = obj.tileHeight;
+            }
+            
+            // Load the image
+            const img = await loadSprite(imageUrl);
+            
+            // If it's an atlas, crop it using canvas
+            if (obj.spriteType === 'atlas' || obj.iconCoord) {
+                // Scale up small icons (especially 16x16 crop icons) to be more visible
+                const scale = (tileWidth <= 16 && tileHeight <= 16) ? 2 : 1;
+                const canvas = document.createElement('canvas');
+                canvas.width = tileWidth * scale;
+                canvas.height = tileHeight * scale;
+                const ctx = canvas.getContext('2d');
+                
+                // Disable smoothing for crisp pixel art
+                ctx.imageSmoothingEnabled = false;
+                
+                // Draw cropped portion from atlas, scaled up
+                ctx.drawImage(
+                    img,
+                    atlasCoord.x, atlasCoord.y,  // Source x, y (in pixels)
+                    tileWidth, tileHeight,        // Source width, height
+                    0, 0,                         // Dest x, y
+                    tileWidth * scale, tileHeight * scale  // Dest width, height (scaled)
+                );
+                
+                // Use canvas as image source
+                const previewImg = document.createElement('img');
+                previewImg.src = canvas.toDataURL();
+                previewImg.alt = obj.name;
+                container.appendChild(previewImg);
+            } else {
+                // Single sprite - use directly
+                const previewImg = document.createElement('img');
+                previewImg.src = imageUrl;
+                previewImg.alt = obj.name;
+                container.appendChild(previewImg);
+            }
+        } catch (error) {
+            console.error(`Failed to render preview for ${obj.name}:`, error);
+            // Fallback to first letter
+            container.textContent = obj.name.charAt(0);
+        }
     }
     
     handleSettingsButton(action) {

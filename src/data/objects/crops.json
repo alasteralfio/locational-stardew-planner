@@ -335,14 +335,14 @@
         "spriteType": "atlas",
         "seasonal": true,
         "sprite": [
-            "assets/objects/crops/crop_atlas_0.png",
-            "assets/objects/crops/crop_atlas_1.png",
-            "assets/objects/crops/crop_atlas_2.png",
-            "assets/objects/crops/crop_atlas_3.png"
+            "assets/objects/crops/fruittree_atlas_0.png",
+            "assets/objects/crops/fruittree_atlas_1.png",
+            "assets/objects/crops/fruittree_atlas_2.png",
+            "assets/objects/crops/fruittree_atlas_3.png"
         ],
         "atlasCoord": { "x": 96, "y": 0 },
-        "tileWidth": 16,
-        "tileHeight": 32,
+        "tileWidth": 48,
+        "tileHeight": 80,
         "icon": "assets/icons/icon_crop_atlas_0.png",
         "iconCoord": { "x": 32, "y": 16 },
         "footprintWidth": 3,

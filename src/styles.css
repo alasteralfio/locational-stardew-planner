@@ -20,7 +20,7 @@ body {
     
     /* UI Dimensions */
     --toolbar-width: 60px;
-    --palette-expanded-width: 300px;
+    --palette-expanded-width: 375px;
     --status-bar-height: 24px;
     --category-btn-size: 32px;
     
@@ -159,13 +159,13 @@ body {
     left: calc(var(--toolbar-width) + 2 * var(--space-md));
     top: var(--space-md);
     width: calc(var(--palette-expanded-width) - var(--toolbar-width));
-    min-height: 200px;
+    max-height: 625px;
     background: #f9ba66;
     border: var(--border-width) solid #dc7b05;
     border-radius: var(--border-radius-md);
     box-shadow: var(--shadow-inner), var(--shadow-drop);
     display: none;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: var(--space-md);
     opacity: 0;
     transform: translateX(-10px);
@@ -181,6 +181,11 @@ body {
     display: flex;
     align-items: center;
     margin-bottom: var(--space-md);
+    position: sticky;
+    top: 0;
+    background: #f9ba66;
+    z-index: 10;
+    padding-bottom: var(--space-xs);
 }
 
 #search-input {
@@ -209,6 +214,9 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: var(--space-xs);
+    max-height: 550px;
+    overflow-y: auto;
+    padding-right: var(--space-xs);
 }
 
 .object-item {
@@ -235,8 +243,8 @@ body {
 }
 
 .object-preview {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     background: #777;
     display: flex;
     align-items: center;
@@ -246,17 +254,21 @@ body {
     font-weight: bold;
     border-radius: var(--border-radius-sm);
     border: 1px solid #888;
+    overflow: hidden;
+    position: relative;
+}
+
+.object-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 .object-name {
-    font-size: var(--font-size-xs);
-    margin-top: var(--space-xs);
-    text-align: center;
-    max-width: 48px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: white;
+    display: none;
 }
 
 #settings-panel {
